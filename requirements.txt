@@ -1,0 +1,5 @@
+django
+djangorestframework
+django-jalali-date
+Pillow
+setuptools 
