@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مستندات API سیستم آموزش دانشگاهی</title>
+    <link rel="stylesheet" href="/static/EducationApp/css/education_app.css">
+    <style>
+        /* استایل‌های مختص صفحه مستندات API */
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        
+        .api-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            direction: rtl;
+            text-align: right;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header img {
+            width: 100px;
+            margin-bottom: 20px;
+        }
+        
+        .api-endpoints {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .endpoint-card {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .endpoint-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .endpoint-card h3 {
+            color: #2c3e50;
+            margin-top: 0;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 10px;
+        }
+        
+        .endpoint-methods {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .method-tag {
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .get {
+            background-color: #e1f5fe;
+            color: #0288d1;
+        }
+        
+        .post {
+            background-color: #e0f2f1;
+            color: #00897b;
+        }
+        
+        .put {
+            background-color: #fff8e1;
+            color: #ffb300;
+        }
+        
+        .patch {
+            background-color: #f1f8e9;
+            color: #7cb342;
+        }
+        
+        .delete {
+            background-color: #ffebee;
+            color: #e53935;
+        }
+        
+        .url-display {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
+            word-break: break-all;
+            font-family: monospace;
+        }
+        
+        .fields-list {
+            margin-top: 15px;
+        }
+        
+        .fields-list span {
+            display: inline-block;
+            background-color: #f0f0f0;
+            padding: 5px 8px;
+            margin: 3px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        
+        .test-api-btn {
+            background-color: #4c84ff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        .test-api-btn:hover {
+            background-color: #3a6ef0;
+        }
+        
+        .response-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border-right: 3px solid #4c84ff;
+            display: none;
+        }
+        
+        .response-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .response-data {
+            white-space: pre-wrap;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 3px;
+            border: 1px solid #e0e0e0;
+            overflow-x: auto;
+            direction: ltr;
+            font-family: monospace;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* استایل مدال تست API */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        
+        .modal-content {
+            background-color: #fff;
+            margin: 10% auto;
+            padding: 20px;
+            width: 70%;
+            border-radius: 10px;
+            max-height: 80vh;
+            overflow-y: auto;
+            direction: rtl;
+            text-align: right;
+        }
+        
+        .close-btn {
+            color: #aaa;
+            float: left;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .close-btn:hover {
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        
+        .authentication-section {
+            background-color: #fffdeb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .auth-info {
+            font-size: 14px;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .method-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .method-btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+        }
+        
+        .method-btn.active {
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+        }
+        
+        .tab-container {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            background-color: #f5f5f5;
+        }
+        
+        .tab.active {
+            background-color: #fff;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 0 0 5px 5px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="api-container">
+        <div class="header">
+            <img src="/static/EducationApp/Images/university.png" alt="دانشگاه">
+            <h1>مستندات API سیستم آموزش دانشگاهی</h1>
+            <p>در این صفحه می‌توانید با API های سیستم آشنا شده و آن‌ها را تست کنید.</p>
+            <div class="authentication-section">
+                <h3>احراز هویت</h3>
+                <p class="auth-info">برای استفاده از متدهای POST، PUT، PATCH و DELETE نیاز به توکن احراز هویت دارید. توکن را می‌توانید از آدرس زیر دریافت کنید:</p>
+                <div class="url-display">
+                    POST /api/token-auth/ 
+                    Body: {"username": "yourusername", "password": "yourpassword"}
+                </div>
+                <p>توکن دریافتی را در هدر درخواست‌های خود به صورت زیر قرار دهید:</p>
+                <div class="url-display">
+                    Authorization: Token your_token_here
+                </div>
+            </div>
+        </div>
+
+        <div class="api-endpoints">
+            {% for endpoint in api_endpoints %}
+            <div class="endpoint-card">
+                <h3>{{ endpoint.persian_name }} ({{ endpoint.model_name }})</h3>
+                <p>{{ endpoint.description }}</p>
+                
+                <div class="url-display">{{ endpoint.base_url }}</div>
+                
+                <div class="endpoint-methods">
+                    {% for method in endpoint.methods %}
+                    <span class="method-tag {{ method|lower }}">{{ method }}</span>
+                    {% endfor %}
+                </div>
+                
+                <div class="fields-list">
+                    <h4>فیلدهای اصلی:</h4>
+                    {% for field in endpoint.fields %}
+                    <span>{{ field }}</span>
+                    {% endfor %}
+                </div>
+                
+                <button class="test-api-btn" data-endpoint="{{ endpoint.base_url }}" data-model="{{ endpoint.model_name }}">تست API</button>
+                
+                <div class="response-container">
+                    <div class="response-header">پاسخ:</div>
+                    <div class="response-data"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- مدال تست API -->
+        <div id="apiModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn">&times;</span>
+                <h2 id="modalTitle">تست API</h2>
+                
+                <div class="method-selector">
+                    <button class="method-btn get active" data-method="GET">GET</button>
+                    <button class="method-btn post" data-method="POST">POST</button>
+                    <button class="method-btn put" data-method="PUT">PUT</button>
+                    <button class="method-btn patch" data-method="PATCH">PATCH</button>
+                    <button class="method-btn delete" data-method="DELETE">DELETE</button>
+                </div>
+                
+                <div class="tab-container">
+                    <div class="tab active" data-tab="request">درخواست</div>
+                    <div class="tab" data-tab="response">پاسخ</div>
+                </div>
+                
+                <div class="tab-content active" id="requestTab">
+                    <div class="form-group">
+                        <label for="apiUrl">URL:</label>
+                        <input type="text" id="apiUrl" class="form-control" readonly>
+                    </div>
+                    
+                    <div class="form-group" id="idContainer">
+                        <label for="recordId">شناسه (برای GET یک رکورد، PUT، PATCH، DELETE):</label>
+                        <input type="text" id="recordId" class="form-control" placeholder="شناسه رکورد را وارد کنید">
+                    </div>
+                    
+                    <div class="form-group" id="bodyContainer">
+                        <label for="requestBody">بدنه درخواست (JSON):</label>
+                        <textarea id="requestBody" class="form-control" rows="10" placeholder='{
+    "field1": "value1",
+    "field2": "value2"
+}'></textarea>
+                    </div>
+                    
+                    <div class="form-group" id="tokenContainer">
+                        <label for="authToken">توکن احراز هویت (برای POST، PUT، PATCH، DELETE):</label>
+                        <input type="text" id="authToken" class="form-control" placeholder="Token your_token_here">
+                    </div>
+                    
+                    <button id="sendRequestBtn" class="test-api-btn">ارسال درخواست</button>
+                </div>
+                
+                <div class="tab-content" id="responseTab">
+                    <div class="form-group">
+                        <label>وضعیت پاسخ:</label>
+                        <div id="responseStatus" class="url-display">-</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>داده‌های پاسخ:</label>
+                        <pre id="responseBody" class="response-data">-</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>سیستم آموزش دانشگاهی - API نسخه 1.0</p>
+            <p>طراحی شده با Django REST Framework</p>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // باز کردن مدال تست API
+            $('.test-api-btn').click(function() {
+                const endpoint = $(this).data('endpoint');
+                const model = $(this).data('model');
+                
+                $('#modalTitle').text(`تست API ${model}`);
+                $('#apiUrl').val(endpoint);
+                $('#requestBody').val('');
+                $('#recordId').val('');
+                $('#responseStatus').text('-');
+                $('#responseBody').text('-');
+                
+                // نمایش/مخفی کردن قسمت‌های مختلف فرم براساس متد انتخاب شده
+                updateFormVisibility('GET');
+                
+                $('#apiModal').show();
+            });
+            
+            // بستن مدال
+            $('.close-btn').click(function() {
+                $('#apiModal').hide();
+            });
+            
+            // کلیک خارج از مدال برای بستن
+            $(window).click(function(event) {
+                if ($(event.target).hasClass('modal')) {
+                    $('#apiModal').hide();
+                }
+            });
+            
+            // انتخاب متد API
+            $('.method-btn').click(function() {
+                $('.method-btn').removeClass('active');
+                $(this).addClass('active');
+                
+                const method = $(this).data('method');
+                updateFormVisibility(method);
+            });
+            
+            // تب‌ها
+            $('.tab').click(function() {
+                $('.tab').removeClass('active');
+                $(this).addClass('active');
+                
+                const tab = $(this).data('tab');
+                $('.tab-content').removeClass('active');
+                $(`#${tab}Tab`).addClass('active');
+            });
+            
+            // ارسال درخواست API
+            $('#sendRequestBtn').click(function() {
+                const method = $('.method-btn.active').data('method');
+                let url = $('#apiUrl').val();
+                const recordId = $('#recordId').val();
+                let body = null;
+                
+                // اضافه کردن شناسه به URL اگر وارد شده باشد
+                if (recordId && (method === 'GET' || method === 'PUT' || method === 'PATCH' || method === 'DELETE')) {
+                    url = url + recordId + '/';
+                }
+                
+                // تبدیل بدنه درخواست به JSON
+                if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+                    try {
+                        body = JSON.parse($('#requestBody').val());
+                    } catch (e) {
+                        alert('خطا در ساختار JSON: ' + e.message);
+                        return;
+                    }
+                }
+                
+                // تنظیم هدرها و گزینه‌های درخواست
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                
+                // اضافه کردن توکن احراز هویت برای متدهای نوشتاری
+                if (method !== 'GET') {
+                    const token = $('#authToken').val();
+                    if (token) {
+                        headers['Authorization'] = token;
+                    } else {
+                        alert('برای این متد نیاز به توکن احراز هویت دارید');
+                        return;
+                    }
+                }
+                
+                // ارسال درخواست
+                $.ajax({
+                    url: url,
+                    method: method,
+                    headers: headers,
+                    data: body ? JSON.stringify(body) : undefined,
+                    success: function(data, textStatus, jqXHR) {
+                        $('#responseStatus').text(jqXHR.status + ' ' + jqXHR.statusText);
+                        $('#responseBody').text(JSON.stringify(data, null, 2));
+                        
+                        // نمایش تب پاسخ
+                        $('.tab[data-tab="response"]').click();
+                    },
+                    error: function(jqXHR) {
+                        $('#responseStatus').text(jqXHR.status + ' ' + jqXHR.statusText);
+                        try {
+                            const errorData = JSON.parse(jqXHR.responseText);
+                            $('#responseBody').text(JSON.stringify(errorData, null, 2));
+                        } catch (e) {
+                            $('#responseBody').text(jqXHR.responseText || 'خطایی رخ داده است');
+                        }
+                        
+                        // نمایش تب پاسخ
+                        $('.tab[data-tab="response"]').click();
+                    }
+                });
+            });
+            
+            // تنظیم نمایش فرم براساس متد انتخاب شده
+            function updateFormVisibility(method) {
+                if (method === 'GET') {
+                    $('#idContainer').show();
+                    $('#bodyContainer').hide();
+                    $('#tokenContainer').hide();
+                } else if (method === 'DELETE') {
+                    $('#idContainer').show();
+                    $('#bodyContainer').hide();
+                    $('#tokenContainer').show();
+                } else {
+                    $('#idContainer').show();
+                    $('#bodyContainer').show();
+                    $('#tokenContainer').show();
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

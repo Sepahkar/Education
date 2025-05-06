@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>انتخاب واحد</title>
+    <!-- Bootstrap RTL CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.rtl.min.css">
+    <!-- Vazir Font -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Vazir', 'Tahoma', sans-serif;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: 280px;
+            background-color: #343a40;
+            color: white;
+            padding-top: 20px;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        
+        .sidebar.collapsed {
+            right: -280px;
+        }
+        
+        .sidebar-header {
+            padding: 20px 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .profile-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #007bff;
+            margin-bottom: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+        
+        .sidebar-menu li {
+            padding: 10px 20px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-menu li.active {
+            background-color: #007bff;
+        }
+        
+        .sidebar-menu a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .sidebar-menu i {
+            margin-left: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .content-wrapper {
+            margin-right: 280px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .content-wrapper.expanded {
+            margin-right: 0;
+        }
+        
+        .navbar {
+            margin-bottom: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar-toggle {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #343a40;
+        }
+        
+        .course-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .semester-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .course-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .course-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .course-card.selected {
+            background-color: rgba(0, 123, 255, 0.1);
+            border: 1px solid rgba(0, 123, 255, 0.3);
+        }
+        
+        .course-card.full {
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+        }
+        
+        .course-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .course-code {
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        
+        .course-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .course-detail {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        
+        .course-detail i {
+            margin-left: 5px;
+            width: 18px;
+            text-align: center;
+            color: #6c757d;
+        }
+        
+        .badge-credits {
+            background-color: #6c757d;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .session-time {
+            background-color: #e9ecef;
+            border-radius: 5px;
+            padding: 8px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .session-time i {
+            margin-left: 8px;
+            color: #6c757d;
+        }
+        
+        .btn-select {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+        }
+        
+        .credits-counter {
+            background-color: #17a2b8;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        
+        .registered-courses {
+            margin-top: 30px;
+        }
+        
+        .registered-title {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+        }
+        
+        .weekday-badge {
+            background-color: #28a745;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        
+        .course-capacity {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        
+        .capacity-full {
+            color: #dc3545;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                right: -280px;
+            }
+            
+            .sidebar.active {
+                right: 0;
+            }
+            
+            .content-wrapper {
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="{{ profile_image }}?auto=format&fit=crop&w=200&h=200&q=80" alt="تصویر پروفایل" class="profile-img">
+            <h5>{{ student.full_name }}</h5>
+            <p class="text-muted">{{ student.student_code }}</p>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{% url 'student_dashboard' %}">
+                    <i class="fas fa-dashboard"></i>
+                    داشبورد
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'student_profile' %}">
+                    <i class="fas fa-user"></i>
+                    اطلاعات شخصی
+                </a>
+            </li>
+            <li class="active">
+                <a href="{% url 'course_selection' %}">
+                    <i class="fas fa-book"></i>
+                    انتخاب واحد
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'student_logout' %}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    خروج
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <div class="sidebar-toggle ms-3">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <span class="navbar-brand">سامانه آموزشی دانشگاه</span>
+                <div class="ms-auto">
+                    <div class="credits-counter">
+                        واحدهای انتخاب شده: <span id="selected-credits">{{ current_credits }}</span> از {{ max_credits }}
+                    </div>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Content -->
+        <div class="container-fluid">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <div class="course-container">
+                <div class="semester-header">
+                    <div>
+                        <h4>انتخاب واحد</h4>
+                        <p class="text-muted">{{ current_semester }}</p>
+                    </div>
+                    <div>
+                        <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#filterOptions">
+                            <i class="fas fa-filter"></i> فیلتر دروس
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- فیلترها -->
+                <div class="collapse mb-4" id="filterOptions">
+                    <div class="card card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="department-filter" class="form-label">دانشکده:</label>
+                                <select id="department-filter" class="form-select">
+                                    <option value="">همه دانشکده‌ها</option>
+                                    <!-- گزینه‌های دانشکده به صورت داینامیک اضافه می‌شود -->
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="days-filter" class="form-label">روزهای هفته:</label>
+                                <select id="days-filter" class="form-select">
+                                    <option value="">همه روزها</option>
+                                    <option value="SAT">شنبه</option>
+                                    <option value="SUN">یکشنبه</option>
+                                    <option value="MON">دوشنبه</option>
+                                    <option value="TUE">سه‌شنبه</option>
+                                    <option value="WED">چهارشنبه</option>
+                                    <option value="THU">پنجشنبه</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="capacity-filter" class="form-label">ظرفیت:</label>
+                                <select id="capacity-filter" class="form-select">
+                                    <option value="">همه</option>
+                                    <option value="available">دارای ظرفیت</option>
+                                    <option value="full">تکمیل ظرفیت</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <button id="apply-filters" class="btn btn-primary">اعمال فیلتر</button>
+                                <button id="clear-filters" class="btn btn-secondary me-2">پاک کردن فیلترها</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- لیست دروس -->
+                <div class="row" id="courses-list">
+                    {% for class in class_offerings %}
+                    <div class="col-md-6 col-lg-4 mb-4 course-item"
+                         data-department="{{ class.course.department.faculty.name }}"
+                         data-days="{{ class.class_sessions.all|join:',' }}">
+                        <div class="course-card {% if class.id in enrolled_classes %}selected{% elif class.enrolled_count >= class.capacity %}full{% endif %}">
+                            <div class="course-title">
+                                <span>{{ class.course.title }}</span>
+                                <span class="badge-credits">{{ class.course.credits }} واحد</span>
+                            </div>
+                            <div class="course-code">کد درس: {{ class.course.course_code }} | کد کلاس: {{ class.class_code }}</div>
+                            
+                            <div class="course-details">
+                                <div class="course-detail">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    {{ class.course.department.faculty.name }}
+                                </div>
+                                <div class="course-detail">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                    {{ class.professor.full_name }}
+                                </div>
+                            </div>
+                            
+                            <div class="course-capacity {% if class.enrolled_count >= class.capacity %}capacity-full{% endif %}">
+                                <i class="fas fa-users"></i> {{ class.enrolled_count }}/{{ class.capacity }}
+                            </div>
+                            
+                            {% for session in class.classsession_set.all %}
+                            <div class="session-time">
+                                <i class="fas fa-clock"></i>
+                                <span class="weekday-badge">{{ session.get_weekday_display }}</span>
+                                {{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}
+                                | اتاق {{ session.room.room_number }}
+                            </div>
+                            {% endfor %}
+                            
+                            {% if class.id in enrolled_classes %}
+                                <button disabled class="btn btn-success btn-sm">انتخاب شده</button>
+                            {% elif class.enrolled_count >= class.capacity %}
+                                <button disabled class="btn btn-danger btn-sm">تکمیل ظرفیت</button>
+                            {% else %}
+                                <form method="post" style="display: inline;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="class_offering_id" value="{{ class.id }}">
+                                    <button type="submit" class="btn btn-primary btn-sm">انتخاب</button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            هیچ کلاسی برای ترم جاری ارائه نشده است.
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- دروس انتخاب شده -->
+            <div class="course-container registered-courses">
+                <h4 class="registered-title">دروس انتخاب شده در ترم جاری</h4>
+                
+                <div class="row">
+                    {% for enrollment in current_enrollments %}
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="course-card selected">
+                            <div class="course-title">
+                                <span>{{ enrollment.class_offering.course.title }}</span>
+                                <span class="badge-credits">{{ enrollment.class_offering.course.credits }} واحد</span>
+                            </div>
+                            <div class="course-code">کد درس: {{ enrollment.class_offering.course.course_code }} | کد کلاس: {{ enrollment.class_offering.class_code }}</div>
+                            
+                            <div class="course-details">
+                                <div class="course-detail">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                    {{ enrollment.class_offering.professor.full_name }}
+                                </div>
+                                <div class="course-detail">
+                                    <i class="fas fa-calendar-check"></i>
+                                    وضعیت: {{ enrollment.get_status_display }}
+                                </div>
+                            </div>
+                            
+                            {% for session in enrollment.class_offering.classsession_set.all %}
+                            <div class="session-time">
+                                <i class="fas fa-clock"></i>
+                                <span class="weekday-badge">{{ session.get_weekday_display }}</span>
+                                {{ session.start_time|time:"H:i" }} - {{ session.end_time|time:"H:i" }}
+                                | اتاق {{ session.room.room_number }}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            شما هنوز هیچ درسی انتخاب نکرده‌اید.
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // برای تغییر وضعیت منوی کناری
+        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+            document.querySelector('.content-wrapper').classList.toggle('expanded');
+        });
+        
+        // اضافه کردن گزینه‌های فیلتر دانشکده به صورت داینامیک
+        document.addEventListener('DOMContentLoaded', function() {
+            const departments = new Set();
+            const departmentFilter = document.getElementById('department-filter');
+            
+            document.querySelectorAll('.course-item').forEach(course => {
+                departments.add(course.getAttribute('data-department'));
+            });
+            
+            departments.forEach(department => {
+                const option = document.createElement('option');
+                option.value = department;
+                option.textContent = department;
+                departmentFilter.appendChild(option);
+            });
+            
+            // اعمال فیلترها
+            document.getElementById('apply-filters').addEventListener('click', applyFilters);
+            
+            // پاک کردن فیلترها
+            document.getElementById('clear-filters').addEventListener('click', function() {
+                document.getElementById('department-filter').value = '';
+                document.getElementById('days-filter').value = '';
+                document.getElementById('capacity-filter').value = '';
+                applyFilters();
+            });
+            
+            function applyFilters() {
+                const department = document.getElementById('department-filter').value;
+                const day = document.getElementById('days-filter').value;
+                const capacity = document.getElementById('capacity-filter').value;
+                
+                document.querySelectorAll('.course-item').forEach(course => {
+                    let visible = true;
+                    
+                    if (department && course.getAttribute('data-department') !== department) {
+                        visible = false;
+                    }
+                    
+                    if (day && !course.getAttribute('data-days').includes(day)) {
+                        visible = false;
+                    }
+                    
+                    if (capacity) {
+                        const isFull = course.querySelector('.course-card').classList.contains('full');
+                        if ((capacity === 'available' && isFull) || (capacity === 'full' && !isFull)) {
+                            visible = false;
+                        }
+                    }
+                    
+                    course.style.display = visible ? 'block' : 'none';
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

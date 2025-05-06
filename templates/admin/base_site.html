@@ -1,0 +1,169 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    @font-face {
+        font-family: Vazir;
+        src: url(https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir.eot);
+        src: url(https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir.eot?#iefix) format('embedded-opentype'),
+             url(https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir.woff2) format('woff2'),
+             url(https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir.woff) format('woff'),
+             url(https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir.ttf) format('truetype');
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    @font-face {
+        font-family: Vazir;
+        src: url(https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir-Bold.eot);
+        src: url(https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir-Bold.eot?#iefix) format('embedded-opentype'),
+             url(https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir-Bold.woff2) format('woff2'),
+             url(https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir-Bold.woff) format('woff'),
+             url(https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/Vazir-Bold.ttf) format('truetype');
+        font-weight: bold;
+        font-style: normal;
+    }
+
+    /* Bootstrap RTL compact */
+    .btn {
+        display: inline-block;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        text-align: center;
+        text-decoration: none;
+        vertical-align: middle;
+        cursor: pointer;
+        user-select: none;
+        background-color: transparent;
+        border: 1px solid transparent;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        border-radius: 0.25rem;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .btn-primary {
+        color: #fff;
+        background-color: #0d6efd;
+        border-color: #0d6efd;
+    }
+
+    .btn-primary:hover {
+        color: #fff;
+        background-color: #0b5ed7;
+        border-color: #0a58ca;
+    }
+
+    /* RTL Support */
+    html[dir="rtl"] body {
+        font-family: 'Vazir', sans-serif !important;
+        direction: rtl;
+        text-align: right;
+    }
+
+    html[dir="rtl"] .dashboard #content {
+        width: 100%;
+    }
+
+    /* Admin Styling Improvements */
+    #header {
+        background: #0d6efd !important;
+        color: #fff !important;
+    }
+
+    #header a:link, #header a:visited {
+        color: #fff !important;
+    }
+
+    .module h2, .module caption, .inline-group h2 {
+        background: #0d6efd !important;
+    }
+
+    div.breadcrumbs {
+        background: #0b5ed7 !important;
+    }
+
+    .button, input[type=submit], input[type=button], .submit-row input, a.button {
+        background: #0d6efd !important;
+    }
+
+    .object-tools a:link, .object-tools a:visited {
+        background: #0d6efd !important;
+    }
+
+    a:link, a:visited {
+        color: #0d6efd !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 767px) {
+        #header #user-tools {
+            text-align: right;
+        }
+    }
+
+    /* Logo display */
+    .company-logo {
+        max-height: 30px;
+        max-width: 100px;
+    }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">
+    <img src="https://iraninsurance.ir/images/logo.png" alt="بیمه" class="company-logo">
+    <a href="{% url 'admin:index' %}">
+        {{ site_header|default:_('Django administration') }}
+    </a>
+</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+    <script>
+        // Add dir="rtl" to html tag
+        document.documentElement.setAttribute('dir', 'rtl');
+        
+        // Translate some common English strings to Persian
+        const translations = {
+            'Search': 'جستجو',
+            'Add': 'افزودن',
+            'Change': 'ویرایش',
+            'Delete': 'حذف',
+            'Save': 'ذخیره',
+            'Save and continue editing': 'ذخیره و ادامه ویرایش',
+            'Save and add another': 'ذخیره و افزودن جدید',
+            'Filter': 'فیلتر',
+            'Home': 'خانه',
+            'Recent Actions': 'عملیات اخیر',
+            'My Actions': 'عملیات من',
+            'None': 'هیچ',
+            'Yes': 'بله',
+            'No': 'خیر',
+            'Add Another': 'افزودن دیگر',
+            'Remove': 'حذف',
+            'Clock': 'ساعت',
+            'Today': 'امروز',
+            'Cancel': 'لغو',
+            'Clear': 'پاک کردن',
+        };
+        
+        // Apply translations after DOM is fully loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Apply translations to buttons and labels
+            document.querySelectorAll('button, input[type="submit"], a.button, .datetimeshortcuts a, .selector-chosen h2, .submit-row label').forEach(el => {
+                if (el.innerText && translations[el.innerText.trim()]) {
+                    el.innerText = translations[el.innerText.trim()];
+                }
+            });
+        });
+    </script>
+{% endblock %} 

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+{% load humanize %}
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پروفایل کاربری | {{ customer.full_name }}</title>
+    <!-- Bootstrap 5 RTL CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <!-- Vazir Font -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Vazir', 'Tahoma', sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .navbar {
+            background-color: #0d6efd;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .navbar-brand img {
+            height: 40px;
+            margin-left: 10px;
+        }
+        
+        .profile-container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background-color: #e9ecef;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: 20px;
+            overflow: hidden;
+        }
+        
+        .profile-avatar i {
+            font-size: 3rem;
+            color: #6c757d;
+        }
+        
+        .profile-info h1 {
+            margin-bottom: 5px;
+        }
+        
+        .section-title {
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            color: #0d6efd;
+        }
+        
+        .form-control {
+            border-radius: 10px;
+            padding: 10px 15px;
+        }
+        
+        .form-label {
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            padding: 10px 25px;
+            border-radius: 50px;
+        }
+        
+        .btn-outline-primary {
+            border-radius: 50px;
+            padding: 8px 20px;
+        }
+        
+        .customer-stats {
+            background-color: rgba(13, 110, 253, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+        }
+        
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #0d6efd;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'insurance:home' %}">
+                <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=150&h=150" alt="لوگو سایت" class="rounded-circle">
+                سامانه بیمه ایران
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'insurance:home' %}">صفحه اصلی</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'insurance:customer_dashboard' %}">داشبورد</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'insurance:customer_policies' %}">بیمه‌نامه‌های من</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'insurance:customer_profile' %}">پروفایل</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <span class="text-light me-3 d-none d-lg-block">{{ customer.full_name }} خوش آمدید</span>
+                    <a href="{% url 'insurance:customer_logout' %}" class="btn btn-outline-light rounded-pill px-3">خروج</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container my-5">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="fs-3 mb-0">پروفایل کاربری</h1>
+                <p class="text-muted">مشاهده و ویرایش اطلاعات شخصی</p>
+            </div>
+        </div>
+        
+        {% if messages %}
+        <div class="messages mb-4">
+            {% for message in messages %}
+            <div class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="profile-container">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="profile-info">
+                            <h1 class="fs-4">{{ customer.full_name }}</h1>
+                            <p class="text-muted mb-0">شناسه مشتری: {{ customer.id }}</p>
+                        </div>
+                    </div>
+                    
+                    <h2 class="fs-5 section-title">اطلاعات شخصی</h2>
+                    
+                    <form method="post" action="{% url 'insurance:customer_profile' %}">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-3">
+                                <label for="full_name" class="form-label">نام و نام خانوادگی</label>
+                                <input type="text" class="form-control" id="full_name" value="{{ customer.full_name }}" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="national_code" class="form-label">کد ملی</label>
+                                <input type="text" class="form-control" id="national_code" value="{{ customer.national_code }}" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="phone_number" class="form-label">شماره تماس</label>
+                                <input type="tel" class="form-control" id="phone_number" name="phone_number" value="{{ customer.phone_number }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">پست الکترونیکی</label>
+                                <input type="email" class="form-control" id="email" name="email" value="{{ customer.email }}">
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="address" class="form-label">آدرس</label>
+                                <textarea class="form-control" id="address" name="address" rows="3">{{ customer.address }}</textarea>
+                            </div>
+                        </div>
+                        
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary rounded-pill">
+                                <i class="fas fa-save me-1"></i>
+                                ذخیره تغییرات
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="profile-container">
+                    <h2 class="fs-5 section-title">آمار و اطلاعات</h2>
+                    
+                    <div class="customer-stats">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ active_policies_count }}</div>
+                                    <div class="stat-label">بیمه‌نامه فعال</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-item">
+                                    <div class="stat-number">{{ expired_policies_count }}</div>
+                                    <div class="stat-label">بیمه‌نامه منقضی</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="{% url 'insurance:customer_policies' %}" class="btn btn-outline-primary rounded-pill text-start">
+                            <i class="fas fa-list me-2"></i>
+                            مشاهده بیمه‌نامه‌ها
+                        </a>
+                        <a href="{% url 'insurance:customer_dashboard' %}" class="btn btn-outline-info rounded-pill text-start">
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            بازگشت به داشبورد
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="mt-5 py-4 bg-dark text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 1404 سامانه فروش بیمه - تمامی حقوق محفوظ است.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">پشتیبانی: 021-12345678</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد دانشجویی</title>
+    <!-- Bootstrap RTL CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.rtl.min.css">
+    <!-- Vazir Font -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Vazir', 'Tahoma', sans-serif;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+        
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100vh;
+            width: 280px;
+            background-color: #343a40;
+            color: white;
+            padding-top: 20px;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        
+        .sidebar.collapsed {
+            right: -280px;
+        }
+        
+        .sidebar-header {
+            padding: 20px 15px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .profile-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #007bff;
+            margin-bottom: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+        
+        .sidebar-menu li {
+            padding: 10px 20px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-menu li.active {
+            background-color: #007bff;
+        }
+        
+        .sidebar-menu a {
+            color: #fff;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .sidebar-menu i {
+            margin-left: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .content-wrapper {
+            margin-right: 280px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .content-wrapper.expanded {
+            margin-right: 0;
+        }
+        
+        .navbar {
+            margin-bottom: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar-toggle {
+            cursor: pointer;
+            font-size: 1.5rem;
+            color: #343a40;
+        }
+        
+        .stats-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stats-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        
+        .charts-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .chart-wrapper {
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .welcome-message {
+            background-color: #007bff;
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-message h4 {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .welcome-message p {
+            position: relative;
+            z-index: 1;
+            opacity: 0.9;
+        }
+        
+        .welcome-message::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://img.icons8.com/color/512/000000/student-center.png');
+            background-size: 200px;
+            background-position: left bottom;
+            background-repeat: no-repeat;
+            opacity: 0.2;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                right: -280px;
+            }
+            
+            .sidebar.active {
+                right: 0;
+            }
+            
+            .content-wrapper {
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="{{ profile_image }}?auto=format&fit=crop&w=200&h=200&q=80" alt="تصویر پروفایل" class="profile-img">
+            <h5>{{ student.full_name }}</h5>
+            <p class="text-muted">{{ student.student_code }}</p>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="active">
+                <a href="{% url 'student_dashboard' %}">
+                    <i class="fas fa-dashboard"></i>
+                    داشبورد
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'student_profile' %}">
+                    <i class="fas fa-user"></i>
+                    اطلاعات شخصی
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'course_selection' %}">
+                    <i class="fas fa-book"></i>
+                    انتخاب واحد
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'student_logout' %}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    خروج
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid">
+                <div class="sidebar-toggle ms-3">
+                    <i class="fas fa-bars"></i>
+                </div>
+                <span class="navbar-brand">سامانه آموزشی دانشگاه</span>
+                <div class="ms-auto">
+                    <span class="badge bg-success">ترم جاری: {% if current_semester %}{{ current_semester }}{% else %}ترم فعالی وجود ندارد{% endif %}</span>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Content -->
+        <div class="container-fluid">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- Welcome Message -->
+            <div class="welcome-message">
+                <h4>خوش آمدید، {{ student.full_name }}</h4>
+                <p>به سامانه جامع آموزشی دانشگاه خوش آمدید. از این صفحه می‌توانید وضعیت تحصیلی خود را مشاهده کنید.</p>
+            </div>
+            
+            <!-- Stats -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="stats-card">
+                        <div class="stats-icon bg-primary text-white">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h5>واحدهای پاس شده</h5>
+                        <h2>{{ passed_credits }}</h2>
+                        <p class="text-muted">از 140 واحد</p>
+                        <div class="progress">
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: {% widthratio passed_credits 140 100 %}%" aria-valuenow="{{ passed_credits }}" aria-valuemin="0" aria-valuemax="140"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="stats-card">
+                        <div class="stats-icon bg-warning text-white">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <h5>واحدهای باقی‌مانده</h5>
+                        <h2>{{ remaining_credits }}</h2>
+                        <p class="text-muted">تا فارغ‌التحصیلی</p>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" role="progressbar" style="width: {% widthratio remaining_credits 140 100 %}%" aria-valuenow="{{ remaining_credits }}" aria-valuemin="0" aria-valuemax="140"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="stats-card">
+                        <div class="stats-icon bg-success text-white">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h5>معدل کل</h5>
+                        <h2>{{ gpa }}</h2>
+                        <p class="text-muted">از 20</p>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" role="progressbar" style="width: {% widthratio gpa 20 100 %}%" aria-valuenow="{{ gpa }}" aria-valuemin="0" aria-valuemax="20"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts -->
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="charts-container">
+                        <h5 class="mb-4">وضعیت واحدهای پاس شده</h5>
+                        <div class="chart-wrapper">
+                            <canvas id="creditsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="charts-container">
+                        <h5 class="mb-4">مقایسه معدل</h5>
+                        <div class="chart-wrapper">
+                            <canvas id="gpaChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-12">
+                    <div class="charts-container">
+                        <h5 class="mb-4">اطلاعات تحصیلی</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-hover">
+                                    <tbody>
+                                        <tr>
+                                            <th>نام و نام خانوادگی:</th>
+                                            <td>{{ student.full_name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>شماره دانشجویی:</th>
+                                            <td>{{ student.student_code }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>دانشکده:</th>
+                                            <td>{{ student.department.faculty.name }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>رشته تحصیلی:</th>
+                                            <td>{{ student.department.name }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table table-hover">
+                                    <tbody>
+                                        <tr>
+                                            <th>تاریخ پذیرش:</th>
+                                            <td>{{ student.jalali_admission_date }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>وضعیت دانشجویی:</th>
+                                            <td>{{ student.get_student_status_display }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>تعداد واحدهای پاس شده:</th>
+                                            <td>{{ passed_credits }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>معدل کل:</th>
+                                            <td>{{ gpa }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // برای تغییر وضعیت منوی کناری
+        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+            document.querySelector('.content-wrapper').classList.toggle('expanded');
+        });
+        
+        // داده‌های نمودارها
+        const chartData = {{ chart_data|safe }};
+        
+        // نمودار دایره‌ای واحدها
+        const ctxCredits = document.getElementById('creditsChart').getContext('2d');
+        new Chart(ctxCredits, {
+            type: 'pie',
+            data: {
+                labels: ['واحدهای پاس شده', 'واحدهای باقی‌مانده'],
+                datasets: [{
+                    label: 'وضعیت واحدها',
+                    data: [chartData.credits.passed, chartData.credits.remaining],
+                    backgroundColor: [
+                        'rgba(0, 123, 255, 0.8)',
+                        'rgba(255, 193, 7, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(0, 123, 255, 1)',
+                        'rgba(255, 193, 7, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = chartData.credits.passed + chartData.credits.remaining;
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} واحد (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // نمودار میله‌ای معدل
+        const ctxGpa = document.getElementById('gpaChart').getContext('2d');
+        new Chart(ctxGpa, {
+            type: 'bar',
+            data: {
+                labels: ['معدل شما', 'معدل 12', 'معدل 15', 'معدل 18', 'معدل 20'],
+                datasets: [{
+                    label: 'مقایسه معدل',
+                    data: [chartData.gpa, 12, 15, 18, 20],
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.8)',
+                        'rgba(108, 117, 125, 0.8)',
+                        'rgba(108, 117, 125, 0.8)',
+                        'rgba(108, 117, 125, 0.8)',
+                        'rgba(108, 117, 125, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(108, 117, 125, 1)',
+                        'rgba(108, 117, 125, 1)',
+                        'rgba(108, 117, 125, 1)',
+                        'rgba(108, 117, 125, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 20
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

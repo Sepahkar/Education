@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+{% load humanize %}
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جزئیات بیمه‌نامه | {{ policy.policy_number }}</title>
+    <!-- Bootstrap 5 RTL CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.rtl.min.css">
+    <!-- Vazir Font -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Vazir', 'Tahoma', sans-serif;
+            background-color: #f8f9fa;
+        }
+        
+        .navbar {
+            background-color: #0d6efd;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .navbar-brand img {
+            height: 40px;
+            margin-left: 10px;
+        }
+        
+        .policy-header {
+            background-color: white;
+            border-radius: 12px 12px 0 0;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .policy-body {
+            background-color: white;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        .policy-footer {
+            background-color: white;
+            border-radius: 0 0 12px 12px;
+            padding: 20px 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .info-box {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            height: 100%;
+        }
+        
+        .annex-card {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        
+        .annex-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transform: translateY(-3px);
+        }
+        
+        .policy-logo {
+            width: 80px;
+            height: 50px;
+            object-fit: contain;
+        }
+        
+        .coverage-badge {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: #0d6efd;
+            border-radius: 50px;
+            padding: 7px 15px;
+            margin-left: 10px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+        
+        .status-badge {
+            padding: 6px 15px;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+        
+        .status-badge.active {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .status-badge.expired {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .status-badge.canceled {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .expiry-badge {
+            background-color: #f8f9fa;
+            border-radius: 50px;
+            padding: 6px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .expiry-badge.danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+        
+        .expiry-badge.warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: #ff9800;
+        }
+        
+        .expiry-badge.success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+        }
+        
+        .btn-primary {
+            padding: 10px 25px;
+            border-radius: 50px;
+        }
+        
+        .btn-outline-primary {
+            border-radius: 50px;
+            padding: 8px 20px;
+        }
+        
+        .annex-title {
+            position: relative;
+            padding-right: 20px;
+        }
+        
+        .annex-title:before {
+            content: '';
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #0d6efd;
+            border-radius: 50%;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .annex-box {
+            background-color: white;
+            border-radius: 12px;
+            margin-top: 30px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+        }
+        
+        .annex-added {
+            color: #28a745;
+            margin-left: 5px;
+        }
+        
+        .annex-removed {
+            color: #dc3545;
+            margin-left: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .policy-header, .policy-body, .policy-footer {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'insurance:home' %}">
+                <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=150&h=150" alt="لوگو سایت" class="rounded-circle">
+                سامانه بیمه ایران
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'insurance:home' %}">صفحه اصلی</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'insurance:customer_dashboard' %}">داشبورد</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'insurance:customer_policies' %}">بیمه‌نامه‌های من</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'insurance:customer_profile' %}">پروفایل</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <span class="text-light me-3 d-none d-lg-block">{{ customer.full_name }} خوش آمدید</span>
+                    <a href="{% url 'insurance:customer_logout' %}" class="btn btn-outline-light rounded-pill px-3">خروج</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="container my-5">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h1 class="fs-3 mb-0">جزئیات بیمه‌نامه</h1>
+                <p class="text-muted">مشاهده اطلاعات کامل بیمه‌نامه و الحاقیه‌ها</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <a href="{% url 'insurance:customer_policies' %}" class="btn btn-outline-primary rounded-pill">
+                    <i class="fas fa-chevron-right me-1"></i>
+                    بازگشت به لیست بیمه‌نامه‌ها
+                </a>
+            </div>
+        </div>
+        
+        <!-- Policy Header -->
+        <div class="policy-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center mb-3 mb-md-0">
+                        {% if policy.insurance_company.logo_url %}
+                        <img src="{{ policy.insurance_company.logo_url }}" alt="{{ policy.insurance_company.name }}" class="policy-logo me-3">
+                        {% else %}
+                        <i class="fas fa-building me-3 text-secondary fa-3x"></i>
+                        {% endif %}
+                        <div>
+                            <h2 class="fs-4 mb-1">{{ policy.insurance_company.name }}</h2>
+                            <p class="mb-0 text-muted">{{ policy.insurance_type.name }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <div>
+                        {% if policy.status == 'active' %}
+                        <span class="status-badge active me-2">فعال</span>
+                        {% elif policy.status == 'expired' %}
+                        <span class="status-badge expired me-2">منقضی شده</span>
+                        {% else %}
+                        <span class="status-badge canceled me-2">لغو شده</span>
+                        {% endif %}
+                        
+                        {% if policy.is_expired %}
+                        <span class="expiry-badge danger">منقضی شده</span>
+                        {% elif policy.days_to_expiry <= 10 %}
+                        <span class="expiry-badge danger">{{ policy.days_to_expiry }} روز تا انقضا</span>
+                        {% elif policy.days_to_expiry <= 30 %}
+                        <span class="expiry-badge warning">{{ policy.days_to_expiry }} روز تا انقضا</span>
+                        {% else %}
+                        <span class="expiry-badge success">{{ policy.days_to_expiry }} روز تا انقضا</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Policy Details -->
+        <div class="policy-body">
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="info-box">
+                        <h3 class="fs-5 mb-3">اطلاعات بیمه‌نامه</h3>
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">شماره بیمه‌نامه:</div>
+                            <div class="col-7">{{ policy.policy_number }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">تاریخ صدور:</div>
+                            <div class="col-7">{{ policy.jalali_issue_date }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">تاریخ انقضا:</div>
+                            <div class="col-7">{{ policy.jalali_expiry_date }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-5 text-muted">حق بیمه:</div>
+                            <div class="col-7">{{ policy.premium_amount|floatformat:0|intcomma }} تومان</div>
+                        </div>
+                        {% if policy.description %}
+                        <div class="row mt-3">
+                            <div class="col-12 text-muted">توضیحات:</div>
+                            <div class="col-12 mt-1">{{ policy.description }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="info-box">
+                        <h3 class="fs-5 mb-3">پوشش‌های بیمه‌نامه</h3>
+                        <div>
+                            {% for coverage in policy.coverages.all %}
+                            <span class="coverage-badge">{{ coverage.name }}</span>
+                            {% empty %}
+                            <p class="text-muted">هیچ پوششی برای این بیمه‌نامه تعریف نشده است.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Policy Footer with Actions -->
+        <div class="policy-footer">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                <div class="mb-3 mb-md-0">
+                    <span class="text-muted">وضعیت بیمه‌نامه:</span>
+                    {% if policy.status == 'active' %}
+                    <span class="text-success fw-bold">فعال</span>
+                    {% elif policy.status == 'expired' %}
+                    <span class="text-danger fw-bold">منقضی شده</span>
+                    {% else %}
+                    <span class="text-secondary fw-bold">لغو شده</span>
+                    {% endif %}
+                </div>
+                <div>
+                    {% if policy.status == 'active' or policy.is_expired and policy.days_to_expiry > -30 %}
+                    <a href="{% url 'insurance:policy_extend' policy_number=policy.policy_number %}" class="btn btn-success rounded-pill me-2">
+                        <i class="fas fa-sync-alt me-1"></i> تمدید بیمه‌نامه
+                    </a>
+                    {% endif %}
+                    
+                    {% if policy.status == 'active' %}
+                    <a href="{% url 'insurance:add_annex' policy_number=policy.policy_number %}" class="btn btn-warning rounded-pill text-white">
+                        <i class="fas fa-file-alt me-1"></i> افزودن الحاقیه
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Annexes Section -->
+        {% if annexes %}
+        <div class="annex-box">
+            <h3 class="fs-4 mb-4">الحاقیه‌های بیمه‌نامه</h3>
+            
+            {% for annex in annexes %}
+            <div class="annex-card">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4 class="fs-5 annex-title mb-3">الحاقیه شماره {{ annex.annex_number }}</h4>
+                        <div class="row mb-2">
+                            <div class="col-4 text-muted">تاریخ صدور:</div>
+                            <div class="col-8">{{ annex.jalali_issue_date }}</div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-4 text-muted">حق بیمه اضافی:</div>
+                            <div class="col-8">{{ annex.additional_premium|floatformat:0|intcomma }} تومان</div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="text-muted mb-2">شرح تغییرات:</div>
+                            <p>{{ annex.description }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mt-3 mt-md-0">
+                            {% if annex.coverages_added.exists %}
+                            <div class="mb-3">
+                                <div class="text-muted mb-2">پوشش‌های اضافه شده:</div>
+                                {% for coverage in annex.coverages_added.all %}
+                                <div class="mb-1">
+                                    <i class="fas fa-plus-circle annex-added"></i>
+                                    {{ coverage.name }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            
+                            {% if annex.coverages_removed.exists %}
+                            <div>
+                                <div class="text-muted mb-2">پوشش‌های حذف شده:</div>
+                                {% for coverage in annex.coverages_removed.all %}
+                                <div class="mb-1">
+                                    <i class="fas fa-minus-circle annex-removed"></i>
+                                    {{ coverage.name }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Footer -->
+    <footer class="mt-5 py-4 bg-dark text-white">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 1404 سامانه فروش بیمه - تمامی حقوق محفوظ است.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">پشتیبانی: 021-12345678</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

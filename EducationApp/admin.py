@@ -1,10 +1,62 @@
 from django.contrib import admin
 from django.contrib.contenttypes.admin import GenericTabularInline
+from django.db.models import Avg, Count
 from . import models
 
 # اینلاین برای اطلاعات تماس
 class ContactInfoInline(GenericTabularInline):
     model = models.ContactInfo
+    extra = 1
+
+# اینلاین ثبت‌نام دانشجو
+class EnrollmentInline(admin.TabularInline):
+    model = models.Enrollment
+    extra = 0
+    fields = ('class_offering', 'status', 'grade', 'has_passed')
+    readonly_fields = ('has_passed',)
+    
+    def has_passed(self, obj):
+        return "✅ قبول" if obj.has_passed else "❌ مردود" if obj.grade is not None else "⏳ در حال تحصیل"
+    has_passed.short_description = 'وضعیت'
+
+# اینلاین کلاس‌های تدریس‌شده توسط استاد
+class ProfessorClassesInline(admin.TabularInline):
+    model = models.ClassOffering
+    extra = 0
+    fields = ('class_code', 'course', 'semester', 'enrolled_students', 'average_grade')
+    readonly_fields = ('enrolled_students', 'average_grade')
+    
+    def enrolled_students(self, obj):
+        return obj.enrollment_set.count()
+    enrolled_students.short_description = 'تعداد دانشجویان'
+    
+    def average_grade(self, obj):
+        avg = obj.enrollment_set.filter(grade__isnull=False).aggregate(avg=Avg('grade'))['avg']
+        return round(avg, 2) if avg is not None else '-'
+    average_grade.short_description = 'میانگین نمرات'
+
+# اینلاین دروس رشته تحصیلی
+class DepartmentCoursesInline(admin.TabularInline):
+    model = models.Course
+    extra = 0
+    fields = ('course_code', 'title', 'credits', 'is_practical')
+
+# اینلاین دانشجویان رشته تحصیلی
+class DepartmentStudentsInline(admin.TabularInline):
+    model = models.Student
+    extra = 0
+    fields = ('student_code', 'first_name', 'last_name', 'student_status')
+
+# اینلاین کلاس‌های درس
+class CourseClassesInline(admin.TabularInline):
+    model = models.ClassOffering
+    extra = 0
+    fields = ('class_code', 'semester', 'professor', 'capacity', 'enrolled_count')
+    readonly_fields = ('enrolled_count',)
+
+# اینلاین جلسات کلاس
+class ClassSessionInline(admin.TabularInline):
+    model = models.ClassSession
     extra = 1
 
 # ادمین دانشکده
@@ -16,9 +68,14 @@ class FacultyAdmin(admin.ModelAdmin):
 # ادمین رشته تحصیلی
 @admin.register(models.Department)
 class DepartmentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'faculty', 'total_credits')
+    list_display = ('name', 'code', 'faculty', 'total_credits', 'student_count')
     list_filter = ('faculty',)
     search_fields = ('name', 'code')
+    inlines = [DepartmentCoursesInline, DepartmentStudentsInline]
+    
+    def student_count(self, obj):
+        return obj.student_set.count()
+    student_count.short_description = 'تعداد دانشجویان'
 
 # ادمین استاد
 @admin.register(models.Professor)
@@ -26,7 +83,7 @@ class ProfessorAdmin(admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'professor_code', 'department', 'academic_rank', 'contract_type')
     list_filter = ('department', 'academic_rank', 'contract_type')
     search_fields = ('first_name', 'last_name', 'professor_code', 'national_code')
-    inlines = [ContactInfoInline]
+    inlines = [ContactInfoInline, ProfessorClassesInline]
     fieldsets = (
         ('اطلاعات شخصی', {
             'fields': ('first_name', 'last_name', 'national_code', 'birth_certificate_number', 
@@ -44,7 +101,7 @@ class StudentAdmin(admin.ModelAdmin):
     list_display = ('first_name', 'last_name', 'student_code', 'department', 'student_status', 'admission_date')
     list_filter = ('department', 'student_status', 'gender')
     search_fields = ('first_name', 'last_name', 'student_code', 'national_code')
-    inlines = [ContactInfoInline]
+    inlines = [ContactInfoInline, EnrollmentInline]
     fieldsets = (
         ('اطلاعات شخصی', {
             'fields': ('first_name', 'last_name', 'national_code', 'birth_certificate_number', 
@@ -76,11 +133,7 @@ class CourseAdmin(admin.ModelAdmin):
     list_filter = ('department', 'is_practical')
     search_fields = ('title', 'course_code')
     filter_horizontal = ('prerequisites',)
-
-# ادمین جلسات کلاس
-class ClassSessionInline(admin.TabularInline):
-    model = models.ClassSession
-    extra = 1
+    inlines = [CourseClassesInline]
 
 # ادمین کلاس
 @admin.register(models.ClassOffering)

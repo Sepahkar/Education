@@ -1,5 +1,7 @@
-django
-djangorestframework
-django-jalali-date
-Pillow
+Django==5.2
+djangorestframework==3.16.0
+django-jalali-date==2.0.0
+Pillow==11.2.1
+drf-yasg==1.21.7
+django-filter==23.5
 setuptools 
